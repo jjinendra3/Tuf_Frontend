@@ -20,16 +20,6 @@ connection.connect((err) => {
 app.listen(3000,()=>{
     console.log("Striver Let's Goooo! Yayaaaayyyy");
 })
-const axios = require('axios');
-
-const options = {
-  method: 'GET',
-  url: 'https://judge0-ce.p.rapidapi.com/about',
-  headers: {
-    'X-RapidAPI-Key': 'SIGN-UP-FOR-KEY',
-    'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
-  }
-};
 
 try {
 	const response = await axios.request(options);
