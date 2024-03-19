@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Editor from "@monaco-editor/react";
 const Form = () => {
+  const editorRef = useRef(null);
+
+  const stdinRef = useRef(null);
+  function handlestdDidMount(stdin, monaco) {
+    stdinRef.current = stdin;
+  }
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+  }
   const [formData, setFormData] = useState({
     username: "",
-    codingLanguage: "Python",
-    sourceCode: "",
-    stdinInput: "",
+    codingLanguage: "Select",
   });
 
   const handleChange = (e) => {
@@ -23,13 +31,15 @@ const Form = () => {
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const code = editorRef.current.getValue();
+    const stdin = stdinRef.current.getValue();
+    console.log(code, stdin);
     if (
       formData.username.length === 0 ||
-      formData.sourceCode.length === 0 ||
-      formData.stdinInput.length === 0
+      formData.codingLanguage === "Select" ||
+      code.length === 0
     ) {
       toast.error("Please fill all the details!", {
         position: "top-right",
@@ -39,20 +49,39 @@ const Form = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "dark"
+        theme: "dark",
       });
       return;
     }
     try {
       const times = getCurrentDateTimeString();
-      const response=await axios.post("http://localhost:5000/submit", {
+      const response = await axios.post("http://localhost:5000/submit", {
         username: formData.username,
         lang: formData.codingLanguage,
-        stdin: formData.stdinInput,
-        code: formData.sourceCode,
+        stdin: stdin,
+        code: code,
         time: times,
       });
-      console.log(response);
+      if (response.data.s === false) {
+        if (response.data.message === "Username already in use.") {
+          toast.error(
+            "Username already in use. Please use a different username",
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+            }
+          );
+          return;
+        } else {
+          throw response.data.s;
+        }
+      }
       toast.success("Form Submitted", {
         position: "top-right",
         autoClose: 5000,
@@ -61,13 +90,11 @@ const Form = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "dark"
+        theme: "dark",
       });
       setFormData({
         username: "",
-        codingLanguage: "Python",
-        sourceCode: "",
-        stdinInput: "",
+        codingLanguage: "Select",
       });
       return;
     } catch (error) {
@@ -80,14 +107,14 @@ const Form = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "dark"
+        theme: "dark",
       });
       return;
     }
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="w-1/2 mx-auto">
       <h1 className="text-3xl font-bold text-center my-4">Submission Form</h1>
       <form
         onSubmit={handleSubmit}
@@ -124,49 +151,60 @@ const Form = () => {
             value={formData.codingLanguage}
             onChange={handleChange}
           >
+            <option value="Select">Select</option>
             <option value="Python">Python</option>
             <option value="C++">C++</option>
             <option value="Java">Java</option>
             <option value="JavaScript">JavaScript</option>
           </select>
         </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="sourceCode"
-          >
-            Source Code
-          </label>
-          <textarea
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="sourceCode"
-            name="sourceCode"
-            placeholder="Source Code"
-            value={formData.sourceCode}
-            onChange={handleChange}
-            rows="20"
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="stdinInput"
-          >
-            Stdin Input
-          </label>
-          <textarea
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="stdinInput"
-            name="stdinInput"
-            placeholder="Stdin Input"
-            value={formData.stdinInput}
-            onChange={handleChange}
-            rows="10"
-          />
-        </div>
+        {formData.codingLanguage !== "Select" ? (
+          <>
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="sourceCode"
+            >
+              Source Code
+            </label>
+
+            <div className="mb-4 border-2 border-black">
+              <Editor
+                id="sourceCode"
+                height="60vh"
+                width="100%"
+                theme="light"
+                defaultLanguage={formData.codingLanguage}
+                onMount={handleEditorDidMount}
+              />
+            </div>
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="stdinInput"
+            >
+              Stdin Input
+            </label>
+            <div className="mb-4 border-2 border-black">
+              <Editor
+                id="stdinInput"
+                height="40vh"
+                width="100%"
+                theme="light"
+                onMount={handlestdDidMount}
+              />
+            </div>
+          </>
+        ) : (
+          <h1 className="font-bold text-center mb-4 text-2xl">
+            Please select your language to continue
+          </h1>
+        )}
         <div className="flex items-center justify-center">
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className={`${
+              formData.codingLanguage === "Select"
+                ? "bg-gray-400"
+                : "bg-blue-500 hover:bg-blue-700 text-white "
+            } font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
             type="submit"
           >
             Submit
