@@ -55,7 +55,7 @@ const Form = () => {
     }
     try {
       const times = getCurrentDateTimeString();
-      const response = await axios.post("http://localhost:5000/submit", {
+      const response = await axios.post(__VALUE__ + "/submit", {
         username: formData.username,
         lang: formData.codingLanguage,
         stdin: stdin,

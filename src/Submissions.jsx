@@ -41,7 +41,7 @@ const SubmissionsTable = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.get("http://localhost:5000/getsub");
+        const response = await axios.get("" + __VALUE__ + "/getsub");
         if (response.data.message !== "Table 'users' does not exist") {
           setSubmissions(response.data.result);
         }
@@ -105,7 +105,9 @@ const SubmissionsTable = () => {
                     </button>
                   </td>
                   <td className="border px-1 py-2">
-                    <div className="overflow-x-auto">{submission.stdin.slice(0,100)}</div>
+                    <div className="overflow-x-auto">
+                      {submission.stdin.slice(0, 100)}
+                    </div>
                     {submission.stdin.length !== 0 ? (
                       <button
                         className="text-blue-400"
