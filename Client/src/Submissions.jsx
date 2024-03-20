@@ -105,7 +105,7 @@ const SubmissionsTable = () => {
                     </button>
                   </td>
                   <td className="border px-1 py-2">
-                    <div className="overflow-x-auto">{submission.stdin}</div>
+                    <div className="overflow-x-auto">{submission.stdin.slice(0,100)}</div>
                     {submission.stdin.length !== 0 ? (
                       <button
                         className="text-blue-400"

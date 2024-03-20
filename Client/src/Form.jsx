@@ -63,7 +63,7 @@ const Form = () => {
         time: times,
       });
       if (response.data.s === false) {
-        if (response.data.message === "Username already in use.") {
+        if (response.data.message === "Username already exists.") {
           toast.error(
             "Username already in use. Please use a different username",
             {
