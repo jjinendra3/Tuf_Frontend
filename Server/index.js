@@ -2,7 +2,7 @@ const express = require("express");
 const mysql = require("mysql");
 require("dotenv").config();
 const cors = require("cors");
-
+const redis = require("redis");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,34 +23,30 @@ connection.connect((err) => {
   console.log("Connected to MySQL database!");
 });
 
+const redisClient = redis.createClient({ url: 'redis://redis:6379' });
+
 app.listen(5000, () => {
   console.log("Striver Let's Goooo! Yayaaaayyyy");
 });
 
 app.post("/submit", async (req, res) => {
   try {
-    console.log(req.body);
-    const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      username VARCHAR(255) NOT NULL UNIQUE,
-      prefer_code_lang VARCHAR(255) NOT NULL,
-      stdin VARCHAR(255) NOT NULL,
-      src_code VARCHAR(255) NOT NULL,
-      time datetime not null
-    )`;
 
-    await connection.query(createTableQuery, (err, result) => {
-      if (err) {
-        console.error("Error creating table:", err);
-        return res.send({ s: false });
-      }
-      console.log("Table created successfully lol!");
-    });
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        prefer_code_lang VARCHAR(255) NOT NULL,
+        stdin VARCHAR(255) NOT NULL,
+        src_code VARCHAR(255) NOT NULL,
+        time DATETIME NOT NULL
+      )`;
+
+    await connection.query(createTableQuery);
 
     const inserter = `
-    INSERT INTO users (username, prefer_code_lang, stdin, src_code, time)
-    VALUES (?, ?, ?, ?, ?)`;
+      INSERT INTO users (username, prefer_code_lang, stdin, src_code, time)
+      VALUES (?, ?, ?, ?, ?)`;
 
     const values = [
       req.body.username,
@@ -59,20 +55,44 @@ app.post("/submit", async (req, res) => {
       req.body.code,
       req.body.time,
     ];
-
-    await connection.query(inserter, values, (err, result) => {
+    
+  const result = await new Promise((resolve, reject) => {
+    connection.query(`SELECT COUNT(*) AS count FROM users WHERE username = '${req.body.username}'`, (err, res) => {
       if (err) {
-        console.error("Error inserting data:", err);
-        return res.send({ s: false, message: "Username already in use." });
+        reject(err);
+      } else {
+        resolve(res);
       }
-      return res.send({ s: true });
     });
-    return;
+  });
+  if(result[0].count>=1){
+    return res.send({s:false,message:"Username already exists."})
+  }
+
+     await connection.query(inserter, values);
+     const ok= await new Promise((resolve, reject) => {
+      connection.query(`SELECT * FROM users`, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+    await redisClient.connect();
+    await redisClient.set("cachedData", JSON.stringify(ok));
+    const cachedData = await redisClient.get("cachedData");
+    await redisClient.quit();
+
+    const parsedData = await JSON.parse(cachedData);
+    return res.send({ s: true, parsedData });
+
   } catch (error) {
-    console.log(error);
-    return res.send({ s: false });
+    console.error("Error in /submit route:", error);
+    return res.send({ s: false, message: error.message });
   }
 });
+
 
 app.get("/getsub", async (req, res) => {
   try {
@@ -84,15 +104,23 @@ app.get("/getsub", async (req, res) => {
       }
 
       if (result.length === 0) {
-        console.log("Table 'users' does not exist");
         return res.send({ s: false, message: "Table 'users' does not exist" });
       }
-
-      await connection.query("SELECT * FROM users;", (err, result) => {
+      await redisClient.connect();
+    const cachedData = await redisClient.get("cachedData");
+    await redisClient.quit();
+      if(cachedData){
+        const parsedData = await JSON.parse(cachedData);
+         return res.send({ s: true, result:parsedData });
+      }
+      await connection.query("SELECT * FROM users;",async (err, result) => {
         if (err) {
           console.error("Error fetching data:", err);
           return res.send({ s: false });
         }
+        await redisClient.connect();
+        await redisClient.set("cachedData", JSON.stringify(ok));
+        await redisClient.quit();
         return res.send({ s: true, result });
       });
     });
