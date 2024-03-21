@@ -15,7 +15,8 @@ const Form = () => {
     } else {
       id = 63;
     }
-
+    const s=btoa(code);
+    const t=btoa(stdin);
     const options = {
       method: "POST",
       url: "https://judge0-ce.p.rapidapi.com/submissions",
@@ -27,18 +28,18 @@ const Form = () => {
       headers: {
         "content-type": "application/json",
         "Content-Type": "application/json",
-        "X-RapidAPI-Key": __JUDGEVALUE__,
+        "X-RapidAPI-Key": `${__JUDGEVALUE__}`,
         "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
       },
       data: {
         language_id: id,
-        source_code: btoa(code),
-        stdin: btoa(stdin)
+        source_code: s,
+        stdin: t
       },
     };
-
     try {
       const response = await axios.request(options);
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error(error);
@@ -96,7 +97,11 @@ const Form = () => {
     try {
       const times = getCurrentDateTimeString();
       const stdout = await hello(formData.codingLanguage, code, stdin);
-      const stdouts=atob(stdout.stdout);
+      console.log(stdout);  
+    let stdouts;
+      if(stdout.stdout){
+     stdouts=atob(stdout.stdout);
+    }
       const response = await axios.post(__VALUE__ + "/submit", {
         username: formData.username,
         lang: formData.codingLanguage,
