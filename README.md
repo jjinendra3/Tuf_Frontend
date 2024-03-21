@@ -9,4 +9,4 @@ View the website [here](https://tuf-jinendrajain.netlify.app)
 
 View the Backend Repository [here](https://github.com/jjinendra3/Tuf_Backend)
 
-Watch application walthrough [here](https://drive.google.com/file/d/1YDzUCxRolY2wGzRtlnlDkwpC0mpW1WBb/view?usp=sharing)
+Watch application walkthrough [here](https://drive.google.com/file/d/1YDzUCxRolY2wGzRtlnlDkwpC0mpW1WBb/view?usp=sharing)
