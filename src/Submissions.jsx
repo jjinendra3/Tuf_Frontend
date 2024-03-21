@@ -139,7 +139,7 @@ const SubmissionsTable = () => {
                   </td>
                   <td className="border px-1 py-2">
                     <div className="overflow-x-auto">
-                      {formattedTime.slice}
+                      {formattedTime.slice(0,20)}
                     </div>
                   </td>
                 </tr>
