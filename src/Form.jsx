@@ -39,7 +39,6 @@ const Form = () => {
     };
     try {
       const response = await axios.request(options);
-      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error(error);
@@ -76,7 +75,6 @@ const Form = () => {
     e.preventDefault();
     const code = editorRef.current.getValue();
     const stdin = stdinRef.current.getValue();
-    console.log(code, stdin);
     if (
       formData.username.length === 0 ||
       formData.codingLanguage === "Select" ||
@@ -96,13 +94,20 @@ const Form = () => {
     }
     try {
       const times = getCurrentDateTimeString();
-      const stdout = await hello(formData.codingLanguage, code, stdin);
-      console.log(stdout);  
-    let stdouts;
+      const stdout = await hello(formData.codingLanguage, code, stdin);  
+    let stdouts="";
+    if(stdout){
+    if(stdout.stderr){
+      stdouts=atob(stdout.stderr);
+    }
+    if(stdout.compile_output){
+      stdouts=atob(stdout.compile_output);
+    }
       if(stdout.stdout){
      stdouts=atob(stdout.stdout);
     }
-      const response = await axios.post(__VALUE__ + "/submit", {
+    }
+      const response = await axios.post(__VALUE__+ "/submit", {
         username: formData.username,
         lang: formData.codingLanguage,
         stdin: stdin,
