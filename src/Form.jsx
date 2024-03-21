@@ -4,46 +4,7 @@ import axios from "axios";
 import Editor from "@monaco-editor/react";
 const Form = () => {
   const editorRef = useRef(null);
-  async function hello(lang, code, stdin) {
-    let id = 0;
-    if (lang === "Python") {
-      id = 71;
-    } else if (lang === "C++") {
-      id = 53;
-    } else if (lang === "Java") {
-      id = 62;
-    } else {
-      id = 63;
-    }
-    const s=btoa(code);
-    const t=btoa(stdin);
-    const options = {
-      method: "POST",
-      url: "https://judge0-ce.p.rapidapi.com/submissions",
-      params: {
-        base64_encoded: "true",
-        fields: "*",
-        wait: "true",
-      },
-      headers: {
-        "content-type": "application/json",
-        "Content-Type": "application/json",
-        "X-RapidAPI-Key": `${__JUDGEVALUE__}`,
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-      },
-      data: {
-        language_id: id,
-        source_code: s,
-        stdin: t
-      },
-    };
-    try {
-      const response = await axios.request(options);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  async function hello(lang, code, stdin) {}
 
   const stdinRef = useRef(null);
   function handlestdDidMount(stdin, monaco) {
@@ -94,26 +55,59 @@ const Form = () => {
     }
     try {
       const times = getCurrentDateTimeString();
-      const stdout = await hello(formData.codingLanguage, code, stdin);  
-    let stdouts="";
-    if(stdout){
-    if(stdout.stderr){
-      stdouts=atob(stdout.stderr);
-    }
-    if(stdout.compile_output){
-      stdouts=atob(stdout.compile_output);
-    }
-      if(stdout.stdout){
-     stdouts=atob(stdout.stdout);
-    }
-    }
-      const response = await axios.post(__VALUE__+ "/submit", {
+      let id = 0;
+      if (formData.codingLanguage === "Python") {
+        id = 71;
+      } else if (formData.codingLanguage === "C++") {
+        id = 53;
+      } else if (formData.codingLanguage === "Java") {
+        id = 62;
+      } else {
+        id = 63;
+      }
+      const s = btoa(code);
+      const t = btoa(stdin);
+      const options = {
+        method: "POST",
+        url: "https://judge0-ce.p.rapidapi.com/submissions",
+        params: {
+          base64_encoded: "true",
+          fields: "*",
+          wait: "true",
+        },
+        headers: {
+          "content-type": "application/json",
+          "Content-Type": "application/json",
+          "X-RapidAPI-Key": `${__JUDGEVALUE__}`,
+          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+        },
+        data: {
+          language_id: id,
+          source_code: s,
+          stdin: t,
+        },
+      };
+      let stdout = await axios.request(options);
+      stdout = stdout.data;
+      let stdouts = "";
+      if (stdout) {
+        if (stdout.stderr) {
+          stdouts = "Error";
+        }
+        if (stdout.compile_output) {
+          stdouts = "Error";
+        }
+        if (stdout.stdout) {
+          stdouts = atob(stdout.stdout);
+        }
+      }
+      const response = await axios.post(__VALUE__ + "/submit", {
         username: formData.username,
         lang: formData.codingLanguage,
         stdin: stdin,
         code: code,
         time: times,
-        stdout:stdouts
+        stdout: stdouts,
       });
       if (response.data.s === false) {
         if (response.data.message === "Username already exists.") {

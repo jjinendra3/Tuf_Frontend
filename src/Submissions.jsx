@@ -18,8 +18,8 @@ const Modal = ({ data, onClose }) => {
         </div>
         <div className="border-2 border-black">
           <Editor
-            height="40vh"
-            width="40vh"
+            height="60vh"
+            width="60vh"
             theme="light"
             defaultValue={data}
           />
@@ -39,7 +39,7 @@ const SubmissionsTable = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.get("" + __VALUE__ + "/getsub");
+        const response = await axios.get( __VALUE__ + "/getsub");
         if (response.data.message !== "Table 'users' does not exist") {
           setSubmissions(response.data.result);
         }
@@ -133,7 +133,7 @@ const SubmissionsTable = () => {
                           setIsModalOpen(true);
                         }}
                       >
-                        View stdin
+                        View stdout
                       </button>
 
                   </td>
