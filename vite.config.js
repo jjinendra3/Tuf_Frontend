@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [react()],
   define: {
     __VALUE__: `"${process.env.VITE_APIURL}"`,
+    __JUDGEVALUE__: `"${process.env.VITE_JUDGEAPI}"`,
   },
   css: {
     postcss: {

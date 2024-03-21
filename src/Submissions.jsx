@@ -10,7 +10,6 @@ const Modal = ({ data, onClose }) => {
         <div className="flex justify-end">
           <button
             onClick={() => {
-              console.log("sd");
               onClose(false);
             }}
           >
@@ -33,7 +32,6 @@ const SubmissionsTable = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [data, setdata] = useState("");
-  console.log(isModalOpen);
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -76,6 +74,7 @@ const SubmissionsTable = () => {
               <th className="border px-1 py-2">Language</th>
               <th className="border px-1 py-2">Source Code</th>
               <th className="border px-1 py-2">StdIn</th>
+              <th className="border px-1 py-2">StdOut</th>
               <th className="border px-1 py-2">Time Stamp</th>
             </tr>
           </thead>
@@ -124,7 +123,23 @@ const SubmissionsTable = () => {
                   </td>
                   <td className="border px-1 py-2">
                     <div className="overflow-x-auto">
-                      {formattedTime.slice(0, 20)}
+                      {submission.stdout}
+                    </div>
+                    
+                      <button
+                        className="text-blue-400"
+                        onClick={() => {
+                          setdata(submission.stdout);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        View stdin
+                      </button>
+
+                  </td>
+                  <td className="border px-1 py-2">
+                    <div className="overflow-x-auto">
+                      {formattedTime.slice}
                     </div>
                   </td>
                 </tr>
