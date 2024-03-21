@@ -1,8 +1,10 @@
-# React + Vite
+# TECH USED 
+  - React
+  - Vite
+  - Judge0 API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Please note that the Judge0 API only supports 50 requests/day so if there is no output, please contact me [here](https://mail.google.com/mail/?view=cm&fs=1&to=jjinendra3@gmail.com)
 
-Currently, two official plugins are available:
+View the website [here](https://tuf-jinendrajain.netlify.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+View the Backend Repository [here](https://github.com/jjinendra3/Tuf_Backend)
